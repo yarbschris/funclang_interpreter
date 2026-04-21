@@ -1,0 +1,11 @@
+[package]
+name = "firstlang_interpreter"
+version = "0.1.0"
+authors = ["Chris Yarbro <chrisyarbro@proton.me>"]
+edition = "2024"
+
+[build-dependencies]
+lalrpop = "0.23.1"
+
+[dependencies]
+lalrpop-util = { version = "0.23.1", features = ["lexer", "unicode"] }
