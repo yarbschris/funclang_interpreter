@@ -1,5 +1,5 @@
 [package]
-name = "firstlang_interpreter"
+name = "funclang_interpreter"
 version = "0.1.0"
 authors = ["Chris Yarbro <chrisyarbro@proton.me>"]
 edition = "2024"

@@ -2,12 +2,23 @@ pub mod ast;
 
 use lalrpop_util::lalrpop_mod;
 
-lalrpop_mod!(pub firstlang);
+lalrpop_mod!(pub funclang);
 
 fn main() {
-    assert!(
-        firstlang::ExprParser::new()
-            .parse("if x == 1 then 1 else 4")
-            .is_ok()
-    )
+    let inputs = [
+        "let x = 1 in x + 2",
+        "let x = if x == 0 then 1 else 2 in x",
+        "let x = let y = 1 in y in x + 1",
+        "1 + (let x = 5 in x)",
+        "1 - 2 - 3",
+        "let x = in 5",
+    ];
+
+    let parser = funclang::ExprParser::new();
+    for src in inputs {
+        match parser.parse(src) {
+            Ok(ast) => println!("{src}\n=> {ast:#?}\n"),
+            Err(e) => println!("{src}\n=> parse error: {e}\n"),
+        }
+    }
 }

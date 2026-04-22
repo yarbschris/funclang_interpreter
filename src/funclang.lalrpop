@@ -1,0 +1,48 @@
+use std::str::FromStr;
+use crate::ast::{Expr, BinaryOpcode, UnaryOpcode};
+
+grammar;
+
+pub Expr: Box<Expr> = {
+    OpExpr,
+    "if" <Expr> "then" <Expr> "else" <Expr> => Box::new(Expr::If(<>)),
+    "let" <n:Ident> "=" <v:Expr> "in" <e:Expr> => Box::new(Expr::LetIn{name: n, value: v, body: e}),
+}
+
+pub OpExpr: Box<Expr> = {
+    #[precedence(level="0")]
+    Atom,
+    #[precedence(level="1")]
+    "-" <e:OpExpr> => Box::new(Expr::UnaryOp(UnaryOpcode::Neg, e)),
+    "!" <e:OpExpr> => Box::new(Expr::UnaryOp(UnaryOpcode::Not, e)),
+    #[precedence(level="2")] #[assoc(side="left")]
+    <l:OpExpr> "*" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::Mul, r)),
+    <l:OpExpr> "/" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::Div, r)),
+    <l:OpExpr> "%" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::Mod, r)),
+    #[precedence(level="3")] #[assoc(side="left")]
+    <l:OpExpr> "+" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::Add, r)),
+    <l:OpExpr> "-" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::Sub, r)),
+    #[precedence(level="4")] #[assoc(side="left")]
+    <l:OpExpr> "<" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::LT, r)),
+    <l:OpExpr> ">" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::GT, r)),
+    <l:OpExpr> "<=" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::LTE, r)),
+    <l:OpExpr> ">=" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::GTE, r)),
+    <l:OpExpr> "==" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::EE, r)),
+    <l:OpExpr> "!=" <r:OpExpr> => Box::new(Expr::BinaryOp(l, BinaryOpcode::NE, r)),
+}
+
+Atom: Box<Expr> = {
+    Num => Box::new(Expr::Num(<>)),
+    "true" => Box::new(Expr::Bool(true)),
+    "false" => Box::new(Expr::Bool(false)),
+    Ident => Box::new(Expr::Var(<>)),
+    "(" <Expr> ")"
+}
+
+Ident: String = {
+    r"[a-zA-Z_]\w*" => <>.to_string(),
+}
+
+Num: i32 = {
+    r"[0-9]+" => i32::from_str(<>).unwrap(),
+}
