@@ -12,6 +12,11 @@ fn main() {
         "1 + (let x = 5 in x)",
         "1 - 2 - 3",
         "let x = in 5",
+        "fun x -> x + 1",
+        "fun x -> fun y -> x + y",
+        "fun x y -> x + y",
+        "let inc = fun x -> x + 1 in inc",
+        "1 + (fun x -> x)",
     ];
 
     let parser = funclang::ExprParser::new();

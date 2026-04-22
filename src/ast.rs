@@ -2,6 +2,10 @@ type Program = Expr;
 
 #[derive(Debug)]
 pub enum Expr {
+    Lambda {
+        param: String,
+        body: Box<Expr>,
+    },
     LetIn {
         name: String,
         value: Box<Expr>,

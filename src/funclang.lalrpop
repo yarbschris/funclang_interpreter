@@ -7,6 +7,8 @@ pub Expr: Box<Expr> = {
     OpExpr,
     "if" <Expr> "then" <Expr> "else" <Expr> => Box::new(Expr::If(<>)),
     "let" <n:Ident> "=" <v:Expr> "in" <e:Expr> => Box::new(Expr::LetIn{name: n, value: v, body: e}),
+    "fun" <ps:Ident+> "->" <body:Expr> =>
+    ps.into_iter().rfold(body, |acc, p| Box::new(Expr::Lambda { param: p, body: acc })),
 }
 
 pub OpExpr: Box<Expr> = {
