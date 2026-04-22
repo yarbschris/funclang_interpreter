@@ -11,6 +11,7 @@ pub enum Expr {
         value: Box<Expr>,
         body: Box<Expr>,
     },
+    App(Box<Expr>, Box<Expr>),
     Num(i32),
     Bool(bool),
     Var(String),

@@ -17,6 +17,14 @@ fn main() {
         "fun x y -> x + y",
         "let inc = fun x -> x + 1 in inc",
         "1 + (fun x -> x)",
+        "f x",
+        "f x y",
+        "f x + g y",
+        "f (fun x ->x + 1)",
+        "(fun x -> x + 1) 5",
+        "let f x y = e1 in e2",
+        "let f = fun x y -> e1 in e2",
+        "let x = 1 in let f = fun x y -> x + y in f x 2",
     ];
 
     let parser = funclang::ExprParser::new();
