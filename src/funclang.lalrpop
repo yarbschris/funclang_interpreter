@@ -6,7 +6,17 @@ grammar;
 pub Expr: Box<Expr> = {
     OpExpr,
     "if" <Expr> "then" <Expr> "else" <Expr> => Box::new(Expr::If(<>)),
-    "let" <n:Ident> "=" <v:Expr> "in" <e:Expr> => Box::new(Expr::LetIn{name: n, value: v, body: e}),
+    "let" <n:Ident> <ps:Ident*> "=" <v:Expr> "in" <b:Expr> => {
+        let value = ps.into_iter().rfold(
+                v,
+                |acc, p| Box::new(Expr::Lambda {param: p, body: acc})
+        );
+        Box::new(Expr::LetIn{
+            name: n,
+            value: value,
+            body: b
+        })
+    },
     "fun" <ps:Ident+> "->" <body:Expr> =>
     ps.into_iter().rfold(body, |acc, p| Box::new(Expr::Lambda { param: p, body: acc })),
 }
