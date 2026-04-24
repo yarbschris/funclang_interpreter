@@ -1,37 +1,27 @@
 pub mod ast;
 
 use lalrpop_util::lalrpop_mod;
+use std::io::{self, BufRead, Write};
 
 lalrpop_mod!(pub funclang);
 
 fn main() {
-    let inputs = [
-        "let x = 1 in x + 2",
-        "let x = if x == 0 then 1 else 2 in x",
-        "let x = let y = 1 in y in x + 1",
-        "1 + (let x = 5 in x)",
-        "1 - 2 - 3",
-        "let x = in 5",
-        "fun x -> x + 1",
-        "fun x -> fun y -> x + y",
-        "fun x y -> x + y",
-        "let inc = fun x -> x + 1 in inc",
-        "1 + (fun x -> x)",
-        "f x",
-        "f x y",
-        "f x + g y",
-        "f (fun x ->x + 1)",
-        "(fun x -> x + 1) 5",
-        "let f = fun x y -> x + y in f 1 2",
-        "let f x y = x + y in f 1 2",
-        "let x = 1 in let f = fun x y -> x + y in f x 2",
-    ];
-
     let parser = funclang::ExprParser::new();
-    for src in inputs {
+    let stdin = io::stdin();
+    loop {
+        print!("> ");
+        io::stdout().flush().unwrap();
+        let mut line = String::new();
+        if stdin.lock().read_line(&mut line).unwrap() == 0 {
+            break; // EOF
+        }
+        let src = line.trim();
+        if src.is_empty() {
+            continue;
+        }
         match parser.parse(src) {
-            Ok(ast) => println!("{src}\n=> {ast:#?}\n"),
-            Err(e) => println!("{src}\n=> parse error: {e}\n"),
+            Ok(ast) => print!("{ast}"),
+            Err(e) => println!("parse error: {e}"),
         }
     }
 }
