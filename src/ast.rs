@@ -8,6 +8,11 @@ pub enum Expr {
         param: String,
         body: Box<Expr>,
     },
+    RecLambda {
+        name: String,
+        param: String,
+        body: Box<Expr>,
+    },
     LetIn {
         name: String,
         value: Box<Expr>,
@@ -77,6 +82,11 @@ fn print_tree(expr: &Expr, f: &mut fmt::Formatter<'_>, prefix: &str, last: bool)
 
         Expr::Lambda { param, body } => {
             writeln!(f, "{prefix}{connector}Lambda({param})")?;
+            print_tree(body, f, &child_prefix, true)
+        }
+
+        Expr::RecLambda { name, param, body } => {
+            writeln!(f, "{prefix}{connector}RecLambda({name}, {param})")?;
             print_tree(body, f, &child_prefix, true)
         }
 
