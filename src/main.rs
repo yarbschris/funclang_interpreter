@@ -1,4 +1,5 @@
 pub mod ast;
+pub mod value;
 
 use lalrpop_util::lalrpop_mod;
 use std::io::{self, BufRead, Write};

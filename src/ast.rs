@@ -2,7 +2,7 @@ use std::fmt;
 
 type Program = Expr;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expr {
     Lambda {
         param: String,
@@ -27,7 +27,7 @@ pub enum Expr {
     If(Box<Expr>, Box<Expr>, Box<Expr>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum BinaryOpcode {
     Mul,
     Div,
@@ -43,7 +43,7 @@ pub enum BinaryOpcode {
     NE, // !=
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum UnaryOpcode {
     Inc,
     Dec,
