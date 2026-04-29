@@ -20,7 +20,6 @@ pub enum Expr {
     BinaryOp(Box<Expr>, BinaryOpcode, Box<Expr>),
     UnaryOp(UnaryOpcode, Box<Expr>),
     If(Box<Expr>, Box<Expr>, Box<Expr>),
-    Match(Box<Expr>, Box<(Expr, Box<Expr>)>),
 }
 
 #[derive(Debug)]
@@ -91,15 +90,6 @@ fn print_tree(expr: &Expr, f: &mut fmt::Formatter<'_>, prefix: &str, last: bool)
             writeln!(f, "{prefix}{connector}Let {name}")?;
             print_tree(value, f, &child_prefix, false)?;
             print_tree(body, f, &child_prefix, true)
-        }
-
-        Expr::Match(scrutinee, arm) => {
-            writeln!(f, "{prefix}{connector}Match")?;
-            print_tree(scrutinee, f, &child_prefix, false)?;
-            let arm_prefix = format!("{child_prefix}    ");
-            writeln!(f, "{child_prefix}└── Arm")?;
-            print_tree(&arm.0, f, &arm_prefix, false)?;
-            print_tree(&arm.1, f, &arm_prefix, true)
         }
     }
 }
