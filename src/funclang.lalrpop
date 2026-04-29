@@ -17,6 +17,21 @@ pub Expr: Box<Expr> = {
             body: b
         })
     },
+    "let" "rec" <n:Ident> <ps:Ident+> "=" <v:Expr> "in" <b:Expr> => {
+        let mut it = ps.into_iter();
+        let first = it.next().unwrap();
+        let body = it.rfold(v, |acc, p| Box::new(Expr::Lambda { param: p, body: acc }));
+        let value = Box::new(Expr::RecLambda {
+                name: n.clone(),
+                param: first,
+                body,
+        });
+        Box::new(Expr::LetIn{
+                name: n,
+                value: value,
+                body: b,
+        })
+    },
     // For recursive anonymous function, there must be at least one parameter
     // We pop this first parameter off of iterator and that becomes the param of
     // our RecLambda AST node. Then, we fold over any extra (optional) parameters
