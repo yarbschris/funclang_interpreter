@@ -1,0 +1,70 @@
+let rec fact n =
+  if n == 0 then 1 else n * fact (n - 1)
+in
+let rec fib n =
+  if n < 2 then n else fib (n - 1) + fib (n - 2)
+in
+let rec gcd a b =
+  if b == 0 then a else gcd b (a % b)
+in
+let rec power b e =
+  if e == 0 then 1 else b * power b (e - 1)
+in
+let rec sum_range lo hi =
+  if lo > hi then 0 else lo + sum_range (lo + 1) hi
+in
+let rec ack m n =
+  if m == 0 then n + 1
+  else if n == 0 then ack (m - 1) 1
+  else ack (m - 1) (ack m (n - 1))
+in
+let rec is_prime_from n d =
+  if d * d > n then true
+  else if n % d == 0 then false
+  else is_prime_from n (d + 1)
+in
+let is_prime = fun n ->
+  if n < 2 then false else is_prime_from n 2
+in
+let rec count_primes_up_to n =
+  if n < 2 then 0
+  else if is_prime n then 1 + count_primes_up_to (n - 1)
+  else count_primes_up_to (n - 1)
+in
+let id = fun x -> x in
+let flip = fun f -> fun a -> fun b -> f b a in
+let compose = fun f -> fun g -> fun x -> f (g x) in
+let twice = fun f -> fun x -> f (f x) in
+let rec apply_n n f x = if n == 0 then x else apply_n (n - 1) f (f x) in
+let inc = fun n -> n + 1 in
+let double = fun n -> n * 2 in
+let square = fun n -> n * n in
+let pair = fun a -> fun b -> fun selector -> selector a b in
+let fst = fun p -> p (fun a -> fun b -> a) in
+let snd = fun p -> p (fun a -> fun b -> b) in
+let p1 = pair 3 4 in
+let p2 = pair (fst p1 + snd p1) (fst p1 * snd p1) in
+let scope_test =
+  let x = 100 in
+  let capture = fun y -> x + y in
+  let x = 0 in
+  capture 7
+in
+let curry_test =
+  let add3 = fun a -> fun b -> fun c -> a + b + c in
+  add3 5 7 11
+in
+fact 10
+  + fib 20
+  + gcd 1071 462
+  + power 2 16
+  + sum_range 1 100
+  + ack 3 3
+  + count_primes_up_to 50
+  + apply_n 5 inc 0
+  + twice double 3
+  + compose square inc 4
+  + fst p2
+  + snd p2
+  + scope_test
+  + curry_test
