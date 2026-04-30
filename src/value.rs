@@ -22,8 +22,22 @@ pub enum Value {
     },
 }
 
+impl Value {
+    // Pure Function
+    // Get the type of a value
+    pub fn type_of(&self) -> ValueType {
+        match self {
+            Value::Int(_) => ValueType::Int,
+            Value::Bool(_) => ValueType::Bool,
+            Value::Closure { .. } => ValueType::Function,
+            Value::RecClosure { .. } => ValueType::Function,
+        }
+    }
+}
+
 impl fmt::Display for Value {
-    // Impure Function: Writes values to some f
+    // Impure Function: Writes values to some f, never called directly
+    // Just used for formatting output
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Value::Int(n) => write!(f, "<int> {n}"),
@@ -32,6 +46,13 @@ impl fmt::Display for Value {
             Value::RecClosure { name, .. } => write!(f, "<rec fun> {name}"),
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ValueType {
+    Int,
+    Bool,
+    Function,
 }
 
 // Env: A recursive data structure that allows us to keep track
@@ -87,4 +108,5 @@ impl Env {
 #[derive(Debug)]
 pub enum EvalError {
     UnboundVar(String),
+    MismatchedType { expected: ValueType, got: ValueType },
 }

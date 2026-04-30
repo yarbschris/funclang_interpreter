@@ -45,8 +45,6 @@ pub enum BinaryOpcode {
 
 #[derive(Debug, Clone)]
 pub enum UnaryOpcode {
-    Inc,
-    Dec,
     Neg,
     Not,
 }
