@@ -32,9 +32,22 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
             },
             Err(e) => Err(e),
         },
-        Expr::Lambda { param, body } => todo!(),
-        Expr::RecLambda { name, param, body } => todo!(),
-        Expr::LetIn { name, value, body } => todo!(),
+        Expr::Lambda { param, body } => Ok(Value::Closure {
+            param: param.clone(),
+            body: body.clone(),
+            env,
+        }),
+        Expr::RecLambda { name, param, body } => Ok(Value::RecClosure {
+            name: name.clone(),
+            param: param.clone(),
+            body: body.clone(),
+            env,
+        }),
+        Expr::LetIn { name, value, body } => {
+            let value = eval(value, env.clone())?;
+            let new_env = env.extend(name.clone(), value);
+            eval(body, new_env)
+        }
         Expr::App(func, arg) => todo!(),
     }
 }
