@@ -76,6 +76,12 @@ impl Env {
             parent: self,
         })
     }
+
+    // Impure Function
+    // Helper that returns a pointer to a new empty env
+    pub fn empty() -> Rc<Env> {
+        Rc::new(Env::Empty)
+    }
 }
 
 #[derive(Debug)]
