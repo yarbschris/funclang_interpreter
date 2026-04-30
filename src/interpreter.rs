@@ -48,7 +48,30 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
             let new_env = env.extend(name.clone(), value);
             eval(body, new_env)
         }
-        Expr::App(func, arg) => todo!(),
+        Expr::App(func, arg) => {
+            let f = eval(&func, env.clone())?;
+            let a = eval(&arg, env.clone())?;
+
+            match (f, a) {
+                (Value::Closure { param, body, env }, argument) => {
+                    let new_env = env.extend(param, argument);
+                    eval(&body, new_env)
+                }
+                (
+                    Value::RecClosure {
+                        name,
+                        param,
+                        body,
+                        env,
+                    },
+                    argument,
+                ) => todo!(),
+                (other, _) => Err(EvalError::MismatchedType {
+                    expected: ValueType::Function,
+                    got: other.type_of(),
+                }),
+            }
+        }
     }
 }
 
