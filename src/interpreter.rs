@@ -41,8 +41,8 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
 
 pub fn apply_unop(op: &UnaryOpcode, v: Value) -> Result<Value, EvalError> {
     match (op, v) {
-        (UnaryOpcode::Neg, Value::Int(n)) => Ok(Value::Int(n)),
-        (UnaryOpcode::Not, Value::Bool(b)) => Ok(Value::Bool(b)),
+        (UnaryOpcode::Neg, Value::Int(n)) => Ok(Value::Int(-n)),
+        (UnaryOpcode::Not, Value::Bool(b)) => Ok(Value::Bool(!b)),
         (UnaryOpcode::Neg, other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
             got: other.type_of(),
@@ -56,6 +56,7 @@ pub fn apply_unop(op: &UnaryOpcode, v: Value) -> Result<Value, EvalError> {
 
 pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalError> {
     match (op, l, r) {
+        // ADDITION
         (BinaryOpcode::Add, Value::Int(l), Value::Int(r)) => Ok(Value::Int(l + r)),
         (BinaryOpcode::Add, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
@@ -65,6 +66,8 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+
+        // SUBTRACTION
         (BinaryOpcode::Sub, Value::Int(l), Value::Int(r)) => Ok(Value::Int(l - r)),
         (BinaryOpcode::Sub, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
@@ -74,6 +77,8 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+
+        // MULTIPLICATION
         (BinaryOpcode::Mul, Value::Int(l), Value::Int(r)) => Ok(Value::Int(l * r)),
         (BinaryOpcode::Mul, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
@@ -83,6 +88,8 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+
+        // DIVISION
         (BinaryOpcode::Div, Value::Int(l), Value::Int(r)) => Ok(Value::Int(l / r)),
         (BinaryOpcode::Div, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
@@ -92,6 +99,8 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+
+        // MOD
         (BinaryOpcode::Mod, Value::Int(l), Value::Int(r)) => Ok(Value::Int(l % r)),
         (BinaryOpcode::Mod, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
@@ -101,6 +110,8 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+
+        // GREATER THAN
         (BinaryOpcode::GT, Value::Int(l), Value::Int(r)) => Ok(Value::Bool(l > r)),
         (BinaryOpcode::GT, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
@@ -110,6 +121,8 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+
+        // GREATER THAN OR EQUAL
         (BinaryOpcode::GTE, Value::Int(l), Value::Int(r)) => Ok(Value::Bool(l >= r)),
         (BinaryOpcode::GTE, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
@@ -119,6 +132,8 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+
+        // LESS THAN
         (BinaryOpcode::LT, Value::Int(l), Value::Int(r)) => Ok(Value::Bool(l < r)),
         (BinaryOpcode::LT, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
@@ -128,6 +143,8 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+
+        // LESS THAN OR EQUAL
         (BinaryOpcode::LTE, Value::Int(l), Value::Int(r)) => Ok(Value::Bool(l <= r)),
         (BinaryOpcode::LTE, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
@@ -137,6 +154,8 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+
+        // EQUAL
         (BinaryOpcode::EE, Value::Int(l), Value::Int(r)) => Ok(Value::Bool(l == r)),
         (BinaryOpcode::EE, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
@@ -152,6 +171,8 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+
+        // NOT EQUAL
         (BinaryOpcode::NE, Value::Int(l), Value::Int(r)) => Ok(Value::Bool(l != r)),
         (BinaryOpcode::NE, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
