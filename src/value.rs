@@ -1,4 +1,5 @@
 use crate::ast::Expr;
+use std::fmt;
 use std::rc::Rc;
 
 // Closures in Value store a pointer to the chain of Envs that
@@ -21,6 +22,18 @@ pub enum Value {
     },
 }
 
+impl fmt::Display for Value {
+    // Impure Function: Writes values to some f
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Value::Int(n) => write!(f, "<int> {n}"),
+            Value::Bool(b) => write!(f, "<bool> {b}"),
+            Value::Closure { .. } => write!(f, "<fun>"),
+            Value::RecClosure { name, .. } => write!(f, "<rec fun> {name}"),
+        }
+    }
+}
+
 // Env: A recursive data structure that allows us to keep track
 // of variables
 // Can think of as a backwards linked list of frames, every frame is one binding,
@@ -34,6 +47,38 @@ pub enum Env {
     },
 }
 
-enum EvalError {
+impl Env {
+    // Pure Function
+    // Find the value associated with a name in the scope of the current env
+    pub fn lookup(&self, name: &str) -> Option<Value> {
+        match self {
+            Env::Empty => None,
+            Env::Frame {
+                name: n,
+                value: val,
+                parent,
+            } => {
+                if name == n {
+                    Some(val.clone())
+                } else {
+                    parent.lookup(name)
+                }
+            }
+        }
+    }
+
+    // Pure Function
+    // Construct a new env whose parent points to the current env
+    pub fn extend(self: Rc<Self>, name: String, value: Value) -> Rc<Env> {
+        Rc::new(Env::Frame {
+            name,
+            value,
+            parent: self,
+        })
+    }
+}
+
+#[derive(Debug)]
+pub enum EvalError {
     UnboundVar(String),
 }
