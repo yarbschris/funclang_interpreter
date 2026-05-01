@@ -1,0 +1,64 @@
+let zero = fun on_zero on_succ -> on_zero
+in
+let succ num = fun on_zero on_succ -> on_succ num
+in
+let rec value num = num 0 (fun pred -> 1 + value pred)
+in
+
+// Addition
+// If x is zero, then y
+// Else succ of add (predX, y)
+let rec add x y =
+    x (y) (fun predX -> succ (add predX y))
+in
+
+// Absolute Difference
+// If x is zero, then y
+// Else if y is zero, then x
+// Else diff pred x pred y
+let rec diff x y =
+    x (y) (fun predX -> y (x) (fun predY -> diff predX predY))
+in
+
+// Subtraction:
+// Like difference, except if y is greater than x we get 0
+// (if x is zero then we will always get zero)
+let rec sub x y =
+    x (zero) (fun predX -> y (x) (fun predY -> sub predX predY))
+in
+
+// Multiplication:
+// If x is zero, then 0
+// Else add y (mul predX y)
+let rec mul x y =
+    x (zero) (fun predX -> add (y) (mul predX y))
+in
+
+// Division:
+// If x is zero, then 0
+// Else successor of (div (sub x y) y)
+// Basically: Count the number of times y fits into x
+// TODO: This does not work when x < y (returns 1 bc succ)
+let rec div x y =
+    x (zero) (fun predX -> succ (div (sub x y) y))
+in
+
+let one = succ zero
+in
+let two = succ one
+in
+let four = mul two two
+in
+let three = sub four one
+in
+let twelve = mul three four
+in
+let nine = diff twelve three
+in
+let six = div twelve two
+in
+let twenty = add two (mul nine two)
+in
+let final = diff (mul nine six) two
+in
+value final
