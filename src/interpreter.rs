@@ -50,7 +50,7 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
         }
         Expr::App(func, arg) => {
             let f = eval(&func, env.clone())?;
-            let a = eval(&arg, env.clone())?;
+            let a = eval(&arg, env)?;
 
             match (f, a) {
                 (Value::Closure { param, body, env }, argument) => {
@@ -65,7 +65,17 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
                         env,
                     },
                     argument,
-                ) => todo!(),
+                ) => {
+                    let self_value = Value::RecClosure {
+                        name: name.clone(),
+                        param: param.clone(),
+                        body: body.clone(),
+                        env: Rc::clone(&env),
+                    };
+                    let extended_env = env.extend(name, self_value);
+                    let extended_env = extended_env.extend(param, argument);
+                    eval(&body, extended_env)
+                }
                 (other, _) => Err(EvalError::MismatchedType {
                     expected: ValueType::Function,
                     got: other.type_of(),
