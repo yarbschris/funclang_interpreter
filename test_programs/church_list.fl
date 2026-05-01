@@ -1,0 +1,10 @@
+let nil = fun on_nil on_cons -> on_nil in
+let cons = fun h t -> fun on_nil on_cons -> on_cons h t in
+let rec sum lst = lst 0 (fun h t -> h + sum t) in
+let rec length lst = lst 0 (fun h t -> 1 + length t) in
+let rec map f lst =
+  lst nil (fun h t -> cons (f h) (map f t))
+in
+let l = cons 1 (cons 2 (cons 3 (cons 4 (cons 5 nil)))) in
+let doubled = map (fun x -> x * 2) l in
+sum doubled + length l

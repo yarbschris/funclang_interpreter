@@ -6,9 +6,9 @@ in
 let is_prime = fun n ->
   if n < 2 then false else is_prime_from n 2
 in
-let rec count_primes_up_to n =
-  if n < 2 then 0
-  else if is_prime n then 1 + count_primes_up_to (n - 1)
-  else count_primes_up_to (n - 1)
+let rec sum_primes_up_to n acc =
+  if n < 2 then acc
+  else if is_prime n then sum_primes_up_to (n - 1) (acc + n)
+  else sum_primes_up_to (n - 1) acc
 in
-count_primes_up_to 10
+sum_primes_up_to 100 0

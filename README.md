@@ -21,7 +21,9 @@ cargo run
 This language is kinda just becoming a tiny subset of OCaml, so if you are familiar with ML style languages, the syntax should be very easy to pick up.
 There is an example program.fl which can serve as an example and test the validity of the interpreter.
 To run program.fl:
-cargo run -- program.fl
+cargo run -- test_programs/program.fl
+
+There are a few cool programs in the test_programs dir
 
 #### Command Line Arguments
 

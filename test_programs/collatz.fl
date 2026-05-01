@@ -1,0 +1,6 @@
+let rec collatz_steps n count =
+  if n == 1 then count
+  else if n % 2 == 0 then collatz_steps (n / 2) (count + 1)
+  else collatz_steps (3 * n + 1) (count + 1)
+in
+collatz_steps 27 0

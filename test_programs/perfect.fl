@@ -1,0 +1,15 @@
+let rec sum_divisors_from n d acc =
+  if d >= n then acc
+  else if n % d == 0 then sum_divisors_from n (d + 1) (acc + d)
+  else sum_divisors_from n (d + 1) acc
+in
+let sum_divisors = fun n -> sum_divisors_from n 1 0 in
+let is_perfect = fun n ->
+  if n < 2 then false else sum_divisors n == n
+in
+let rec sum_perfects_up_to n acc =
+  if n < 2 then acc
+  else if is_perfect n then sum_perfects_up_to (n - 1) (acc + n)
+  else sum_perfects_up_to (n - 1) acc
+in
+sum_perfects_up_to 1000 0
