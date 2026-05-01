@@ -12,10 +12,12 @@ use crate::value::Env;
 
 lalrpop_mod!(pub funclang);
 
-fn run(parser: &funclang::ExprParser, src: &str) {
+fn run(parser: &funclang::ExprParser, src: &str, show_tree: bool) {
     match parser.parse(src) {
         Ok(ast) => {
-            print!("{ast}");
+            if show_tree {
+                print!("{ast}");
+            }
             match eval(&ast, Env::empty()) {
                 Ok(value) => println!("=> {value}"),
                 Err(e) => println!("eval error: {e:?}"),
@@ -27,11 +29,13 @@ fn run(parser: &funclang::ExprParser, src: &str) {
 
 fn main() {
     let parser = funclang::ExprParser::new();
-    let args: Vec<String> = env::args().collect();
+    let args: Vec<String> = env::args().skip(1).collect();
+    let show_tree = args.iter().any(|a| a == "-s" || a == "--show-tree");
+    let positional: Vec<&String> = args.iter().filter(|a| !a.starts_with('-')).collect();
 
-    if args.len() > 1 {
-        let src = fs::read_to_string(&args[1]).expect("Could not read file");
-        run(&parser, &src);
+    if let Some(path) = positional.first() {
+        let src = fs::read_to_string(path).expect("Could not read file");
+        run(&parser, &src, show_tree);
         return;
     }
     let stdin = io::stdin();
@@ -46,6 +50,6 @@ fn main() {
         if src.is_empty() {
             continue;
         }
-        run(&parser, &src);
+        run(&parser, &src, show_tree);
     }
 }

@@ -22,3 +22,11 @@ This language is kinda just becoming a tiny subset of OCaml, so if you are famil
 There is an example program.fl which can serve as an example and test the validity of the interpreter.
 To run program.fl:
 cargo run -- program.fl
+
+#### Command Line Arguments
+
+cargo run -> REPL, no AST
+cargo run -- -s -> REPL, AST printed
+cargo run -- program.fl -> run file, no AST
+cargo run -- -s program.fl -> run file, AST printed
+cargo run -- program.fl --show-tree -> also works (order doesn't matter)
