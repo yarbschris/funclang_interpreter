@@ -1,7 +1,5 @@
 use std::fmt;
 
-type Program = Expr;
-
 #[derive(Debug, Clone)]
 pub enum Expr {
     Lambda {
