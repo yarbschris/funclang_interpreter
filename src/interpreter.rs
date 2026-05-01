@@ -53,10 +53,16 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
             let a = eval(&arg, env)?;
 
             match (f, a) {
+                // Function Application: Extend env with parameter and argument value and evaluate
+                // body
                 (Value::Closure { param, body, env }, argument) => {
                     let new_env = env.extend(param, argument);
                     eval(&body, new_env)
                 }
+                // Recursive Function Application: In order to evaluate a body that contains the name of the
+                // function that we are applying, we must extend the env with the closure itself
+                // using the name of the enclosure, then we extend env with the parameter and
+                // argument and evaluate the body
                 (
                     Value::RecClosure {
                         name,
@@ -66,6 +72,9 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
                     },
                     argument,
                 ) => {
+                    // We make a complete clone of the closure because rust does not handle cycles
+                    // well. This is inefficient, and I'm sure there are ways around it, but it is
+                    // what it is
                     let self_value = Value::RecClosure {
                         name: name.clone(),
                         param: param.clone(),
