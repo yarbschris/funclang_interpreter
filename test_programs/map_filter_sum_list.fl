@@ -1,0 +1,19 @@
+let nil = fun on_nil on_cons -> on_nil 
+in
+let cons = fun h t -> fun on_nil on_cons -> on_cons h t 
+in
+let rec map f lst =
+  lst nil (fun h t -> cons (f h) (map f t))
+in
+let rec filter f lst =
+  lst nil (fun h t -> if (f h) then cons (h) (filter f t) else filter f t)
+in
+let rec sum lst = lst 0 (fun h t -> h + sum t)
+in
+let l = cons 1 (cons 2 (cons 3 (cons 4 (cons 5 nil))))
+in 
+let tripled = map (fun x -> 3 * x) l
+in
+let evensOnly = filter (fun x -> (x % 2) == 0) tripled
+in 
+sum evensOnly
