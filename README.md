@@ -28,7 +28,11 @@ There are a few cool programs in the test_programs dir
 #### Command Line Arguments
 
 cargo run -> REPL, no AST
+
 cargo run -- -s -> REPL, AST printed
+
 cargo run -- program.fl -> run file, no AST
+
 cargo run -- -s program.fl -> run file, AST printed
+
 cargo run -- program.fl --show-tree -> also works (order doesn't matter)
