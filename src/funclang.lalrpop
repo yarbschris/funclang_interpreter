@@ -3,6 +3,13 @@ use crate::ast::{Expr, BinaryOpcode, UnaryOpcode};
 
 grammar;
 
+match {
+    r"\s+" => { },
+    r"//[^\n\r]*" => { },
+} else {
+    _
+}
+
 pub Expr: Box<Expr> = {
     OpExpr,
     "if" <Expr> "then" <Expr> "else" <Expr> => Box::new(Expr::If(<>)),
