@@ -1,0 +1,14 @@
+let rec is_prime_from n d =
+  if d * d > n then true
+  else if n % d == 0 then false
+  else is_prime_from n (d + 1)
+in
+let is_prime = fun n ->
+  if n < 2 then false else is_prime_from n 2
+in
+let rec count_primes_up_to n =
+  if n < 2 then 0
+  else if is_prime n then 1 + count_primes_up_to (n - 1)
+  else count_primes_up_to (n - 1)
+in
+count_primes_up_to 10
