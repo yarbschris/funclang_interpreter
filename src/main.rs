@@ -50,6 +50,6 @@ fn main() {
         if src.is_empty() {
             continue;
         }
-        run(&parser, &src, show_tree);
+        run(&parser, src, show_tree);
     }
 }

@@ -6,24 +6,24 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
     match expr {
         Expr::Num(n) => Ok(Value::Int(*n)),
         Expr::Bool(b) => Ok(Value::Bool(*b)),
-        Expr::Var(name) => match env.lookup(&name) {
+        Expr::Var(name) => match env.lookup(name) {
             Some(val) => Ok(val),
             None => Err(EvalError::UnboundVar(name.clone())),
         },
-        Expr::UnaryOp(op, e) => match eval(&e, env) {
+        Expr::UnaryOp(op, e) => match eval(e, env) {
             Ok(v) => apply_unop(op, v),
             Err(e) => Err(e),
         },
-        Expr::BinaryOp(l, op, r) => match (eval(&l, env.clone()), eval(&r, env)) {
+        Expr::BinaryOp(l, op, r) => match (eval(l, env.clone()), eval(r, env)) {
             (Ok(lval), Ok(rval)) => apply_binop(op, lval, rval),
             (Err(e), _) => Err(e),
             (Ok(_), Err(e)) => Err(e),
         },
-        Expr::If(cond, then_branch, else_branch) => match eval(&cond, env.clone()) {
+        Expr::If(cond, then_branch, else_branch) => match eval(cond, env.clone()) {
             Ok(b) => match b {
                 Value::Bool(bval) => match bval {
-                    true => eval(&then_branch, env),
-                    false => eval(&else_branch, env),
+                    true => eval(then_branch, env),
+                    false => eval(else_branch, env),
                 },
                 other => Err(EvalError::MismatchedType {
                     expected: ValueType::Bool,
@@ -49,8 +49,8 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
             eval(body, new_env)
         }
         Expr::App(func, arg) => {
-            let f = eval(&func, env.clone())?;
-            let a = eval(&arg, env)?;
+            let f = eval(func, env.clone())?;
+            let a = eval(arg, env)?;
 
             match (f, a) {
                 // Function Application: Extend env with parameter and argument value and evaluate
