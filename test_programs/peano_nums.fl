@@ -43,6 +43,84 @@ let rec div x y =
     x (zero) (fun predX -> succ (div (sub x y) y))
 in
 
+// Equal
+// x, y == 0 -> true
+// x == 0, y > 0 -> false
+// x > 0, y == 0 -> false
+// x > 0, y > 0 -> isEqual predX predY
+// returned as zero (false) or succ zero (true)
+let rec equal x y =
+    // If x ix zero
+    x (y (succ zero) (fun predY -> zero)) 
+    // Else
+    (fun predX -> y (zero) (fun predY -> equal predX predY))
+in
+
+// Not Equal
+// x, y == 0 -> false
+// x == 0, y > 0 -> true
+// x > 0, y == 0 -> true
+// x > 0, y > 0 -> notEqual predX predY
+// returned as zero (false) or succ zero (true)
+let rec notEqual x y =
+    // If x ix zero
+    x (y (zero) (fun predY -> succ zero)) 
+    // Else
+    (fun predX -> y (succ zero) (fun predY -> notEqual predX predY))
+in
+
+// Greater than
+// x, y == 0 -> false
+// x == 0, y > 0 -> false
+// x > 0, y == 0 -> true
+// x > 0, y > 0 -> greaterThan predX predY
+// returned as zero (false) or succ zero (true)
+let rec greaterThan x y =
+    // If x ix zero
+    x (y (zero) (fun predY -> zero)) 
+    // Else
+    (fun predX -> y (succ zero) (fun predY -> greaterThan predX predY))
+in
+
+// Greater than or equal
+// x, y == 0 -> true
+// x == 0, y > 0 -> false
+// x > 0, y == 0 -> true
+// x > 0, y > 0 -> greaterThanEqual predX predY
+// returned as zero (false) or succ zero (true)
+let rec greaterThanEqual x y =
+    // If x ix zero
+    x (y (succ zero) (fun predY -> zero)) 
+    // Else
+    (fun predX -> y (succ zero) (fun predY -> greaterThanEqual predX predY))
+in
+
+// Less than
+// x, y == 0 -> false
+// x == 0, y > 0 -> true
+// x > 0, y == 0 -> false
+// x > 0, y > 0 -> lessThan predX predY
+// returned as zero (false) or succ zero (true)
+let rec lessThan x y =
+    // If x ix zero
+    x (y (zero) (fun predY -> succ zero)) 
+    // Else
+    (fun predX -> y (zero) (fun predY -> lessThan predX predY))
+in
+
+// Less than or equal
+// x, y == 0 -> true
+// x == 0, y > 0 -> true
+// x > 0, y == 0 -> false
+// x > 0, y > 0 -> lessThanEqual predX predY
+// returned as zero (false) or succ zero (true)
+let rec lessThanEqual x y =
+    // If x ix zero
+    x (y (succ zero) (fun predY -> succ zero)) 
+    // Else
+    (fun predX -> y (zero) (fun predY -> lessThanEqual predX predY))
+in
+
 let one = succ zero
 in
 let two = succ one
@@ -59,6 +137,6 @@ let six = div twelve two
 in
 let twenty = add two (mul nine two)
 in
-let final = diff (mul nine six) two
+let final = sub (mul nine six) (add two twelve)
 in
-value final
+value (equal final (mul two twenty))
