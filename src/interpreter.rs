@@ -145,7 +145,13 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
         }),
 
         // DIVISION
-        (BinaryOpcode::Div, Value::Int(l), Value::Int(r)) => Ok(Value::Int(l / r)),
+        (BinaryOpcode::Div, Value::Int(l), Value::Int(r)) => match r {
+            0 => Err(EvalError::DivideByZero {
+                numerator: l,
+                denominator: r,
+            }),
+            _ => Ok(Value::Int(l / r)),
+        },
         (BinaryOpcode::Div, Value::Int(_), other) => Err(EvalError::MismatchedType {
             expected: ValueType::Int,
             got: other.type_of(),

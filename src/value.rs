@@ -109,4 +109,5 @@ impl Env {
 pub enum EvalError {
     UnboundVar(String),
     MismatchedType { expected: ValueType, got: ValueType },
+    DivideByZero { numerator: i32, denominator: i32 },
 }
