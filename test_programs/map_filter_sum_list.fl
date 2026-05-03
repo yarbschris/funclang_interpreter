@@ -2,18 +2,52 @@ let nil = fun on_nil on_cons -> on_nil
 in
 let cons = fun h t -> fun on_nil on_cons -> on_cons h t 
 in
+
 let rec map f lst =
   lst nil (fun h t -> cons (f h) (map f t))
 in
+
 let rec filter f lst =
   lst nil (fun h t -> if (f h) then cons (h) (filter f t) else filter f t)
 in
+
+
 let rec sum lst = lst 0 (fun h t -> h + sum t)
 in
-let l = cons 1 (cons 2 (cons 3 (cons 4 (cons 5 nil))))
-in 
-let tripled = map (fun x -> 3 * x) l
+
+let rec fold f lst acc =
+    lst acc (fun h t -> fold f t (f acc h))
 in
-let evensOnly = filter (fun x -> (x % 2) == 0) tripled
+
+let foldSum lst = fold (fun x y -> x + y) lst 0
+in
+
+let foldProd lst = fold (fun x y -> x * y) lst 1
+in
+
+let l = cons 1 (cons 2 (cons 3 (cons 4 (cons 5 nil))))
+// [1, 2, 3, 4, 5]
 in 
-sum evensOnly
+
+let tripled = map (fun x -> 3 * x) l
+// [3, 6, 9, 12, 15]
+in
+
+let evensOnly = filter (fun x -> (x % 2) == 0) tripled
+// [6, 12]
+in 
+
+
+let prodOfEvens = foldProd evensOnly
+// 72
+in
+
+let sumOfEvens = sum evensOnly
+// 18
+in
+
+let final = foldSum (cons prodOfEvens (cons sumOfEvens nil))
+// 90
+in
+
+final
