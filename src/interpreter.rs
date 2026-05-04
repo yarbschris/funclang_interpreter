@@ -1,5 +1,5 @@
 use crate::ast::{BinaryOpcode, Expr, UnaryOpcode};
-use crate::value::{Env, EvalError, Value, ValueType};
+use crate::value::{Env, EvalError, List, Value, ValueType};
 use std::rc::Rc;
 
 pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
@@ -91,6 +91,29 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
                 }),
             }
         }
+        // Return a new list value that contains a pointer to a nil list
+        Expr::Nil => Ok(Value::List(Rc::new(List::Nil))),
+        Expr::Cons(l, r) => {
+            let l_val = eval(l, env.clone())?;
+            let r_val = eval(r, env)?;
+            apply_cons(l_val, r_val)
+        }
+    }
+}
+
+pub fn apply_cons(l: Value, r: Value) -> Result<Value, EvalError> {
+    match (l, r) {
+        (candidate, Value::List(tail_rc)) => {
+            // Cons (create a new "List" whose tail points to right side)
+            Ok(Value::List(Rc::new(List::Cons {
+                head: candidate,
+                tail: tail_rc,
+            })))
+        }
+        (_, other) => Err(EvalError::MismatchedType {
+            expected: ValueType::List,
+            got: other.type_of(),
+        }),
     }
 }
 

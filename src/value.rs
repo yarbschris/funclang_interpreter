@@ -20,6 +20,7 @@ pub enum Value {
         body: Box<Expr>,
         env: Rc<Env>, // Scope Capture
     },
+    List(Rc<List>),
 }
 
 impl Value {
@@ -31,6 +32,7 @@ impl Value {
             Value::Bool(_) => ValueType::Bool,
             Value::Closure { .. } => ValueType::Function,
             Value::RecClosure { .. } => ValueType::Function,
+            Value::List(_) => ValueType::List,
         }
     }
 }
@@ -44,6 +46,7 @@ impl fmt::Display for Value {
             Value::Bool(b) => write!(f, "<bool> {b}"),
             Value::Closure { .. } => write!(f, "<fun>"),
             Value::RecClosure { name, .. } => write!(f, "<rec fun> {name}"),
+            Value::List(l) => write!(f, "<list> {l}"),
         }
     }
 }
@@ -53,6 +56,7 @@ pub enum ValueType {
     Int,
     Bool,
     Function,
+    List,
 }
 
 // Env: A recursive data structure that allows us to keep track
@@ -102,6 +106,36 @@ impl Env {
     // Helper that returns a pointer to a new empty env
     pub fn empty() -> Rc<Env> {
         Rc::new(Env::Empty)
+    }
+}
+
+// Cons list structure
+#[derive(Debug, Clone)]
+pub enum List {
+    Nil,
+    Cons { head: Value, tail: Rc<List> },
+}
+
+impl fmt::Display for List {
+    // Impure Function: Writes values to some f, never called directly
+    // Just used for formatting output
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[")?;
+        fmt_cells(self, f, true)?;
+        write!(f, "]")
+    }
+}
+
+fn fmt_cells(list: &List, f: &mut fmt::Formatter<'_>, first: bool) -> fmt::Result {
+    match list {
+        List::Nil => Ok(()),
+        List::Cons { head, tail } => {
+            if !first {
+                write!(f, "; ")?;
+            }
+            write!(f, "{head}")?;
+            fmt_cells(tail, f, false)
+        }
     }
 }
 

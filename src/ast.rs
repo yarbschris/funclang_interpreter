@@ -23,6 +23,8 @@ pub enum Expr {
     BinaryOp(Box<Expr>, BinaryOpcode, Box<Expr>),
     UnaryOp(UnaryOpcode, Box<Expr>),
     If(Box<Expr>, Box<Expr>, Box<Expr>),
+    Nil,
+    Cons(Box<Expr>, Box<Expr>),
 }
 
 #[derive(Debug, Clone)]
@@ -96,6 +98,14 @@ fn print_tree(expr: &Expr, f: &mut fmt::Formatter<'_>, prefix: &str, last: bool)
             writeln!(f, "{prefix}{connector}Let {name}")?;
             print_tree(value, f, &child_prefix, false)?;
             print_tree(body, f, &child_prefix, true)
+        }
+
+        Expr::Nil => writeln!(f, "{prefix}{connector}Nil"),
+
+        Expr::Cons(l, r) => {
+            writeln!(f, "{prefix}{connector}Cons")?;
+            print_tree(l, f, &child_prefix, false)?;
+            print_tree(r, f, &child_prefix, true)
         }
     }
 }
