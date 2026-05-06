@@ -25,6 +25,20 @@ pub enum Expr {
     If(Box<Expr>, Box<Expr>, Box<Expr>),
     Nil,
     Cons(Box<Expr>, Box<Expr>),
+    Match {
+        scrutinee: Box<Expr>,
+        arms: Vec<(Pattern, Box<Expr>)>,
+    },
+}
+
+#[derive(Debug, Clone)]
+pub enum Pattern {
+    PVar(String),
+    PWildcard,
+    PNum(i32),
+    PBool(bool),
+    PNil,
+    PCons(Box<Pattern>, Box<Pattern>),
 }
 
 #[derive(Debug, Clone)]
@@ -107,6 +121,10 @@ fn print_tree(expr: &Expr, f: &mut fmt::Formatter<'_>, prefix: &str, last: bool)
             print_tree(l, f, &child_prefix, false)?;
             print_tree(r, f, &child_prefix, true)
         }
+        Expr::Match {
+            scrutinee: s,
+            arms: a,
+        } => todo!(),
     }
 }
 

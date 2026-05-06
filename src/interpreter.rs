@@ -1,4 +1,4 @@
-use crate::ast::{BinaryOpcode, Expr, UnaryOpcode};
+use crate::ast::{BinaryOpcode, Expr, Pattern, UnaryOpcode};
 use crate::value::{Env, EvalError, List, Value, ValueType};
 use std::rc::Rc;
 
@@ -98,6 +98,59 @@ pub fn eval(expr: &Expr, env: Rc<Env>) -> Result<Value, EvalError> {
             let r_val = eval(r, env)?;
             apply_cons(l_val, r_val)
         }
+        Expr::Match {
+            scrutinee: s,
+            arms: a,
+        } => {
+            let v = eval(s, Rc::clone(&env))?;
+            for (pat, body) in a {
+                if let Some(bindings) = try_match(&v, pat) {
+                    // We use fold to extend env for every binding
+                    let arm_env = bindings
+                        .into_iter()
+                        .fold(Rc::clone(&env), |e, (name, val)| e.extend(name, val));
+                    return eval(body, arm_env);
+                }
+            }
+
+            Err(EvalError::NonExhaustive)
+        }
+    }
+}
+
+// Pure Function: Attempt to match when pattern matching detected
+pub fn try_match(value: &Value, pattern: &Pattern) -> Option<Vec<(String, Value)>> {
+    match (pattern, value) {
+        (Pattern::PWildcard, _) => Some(vec![]),
+        (Pattern::PVar(name), v) => Some(vec![(name.clone(), v.clone())]),
+        (Pattern::PNum(n), Value::Int(m)) => {
+            if n == m {
+                Some(vec![])
+            } else {
+                None
+            }
+        }
+        (Pattern::PBool(b), Value::Bool(c)) => {
+            if b == c {
+                Some(vec![])
+            } else {
+                None
+            }
+        }
+        (Pattern::PNil, Value::List(rc)) => match &**rc {
+            List::Nil => Some(vec![]),
+            List::Cons { .. } => None,
+        },
+        (Pattern::PCons(ph, pt), Value::List(rc)) => match &**rc {
+            List::Nil => None,
+            List::Cons { head, tail } => {
+                let mut bs = try_match(head, ph)?;
+                let bs_tail = try_match(&Value::List(Rc::clone(tail)), pt)?;
+                bs.extend(bs_tail);
+                Some(bs)
+            }
+        },
+        _ => None,
     }
 }
 
@@ -272,5 +325,112 @@ pub fn apply_binop(op: &BinaryOpcode, l: Value, r: Value) -> Result<Value, EvalE
             expected: ValueType::Int,
             got: other.type_of(),
         }),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::value::{List, Value};
+    use std::rc::Rc;
+
+    // Constructs a list from a Vector of values
+    fn list_of(xs: Vec<Value>) -> Value {
+        let list = xs.into_iter().rev().fold(Rc::new(List::Nil), |acc, v| {
+            Rc::new(List::Cons { head: v, tail: acc })
+        });
+        Value::List(list)
+    }
+
+    #[test]
+    fn cons_pattern_binds_head_and_tail() {
+        let xs = list_of(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
+
+        let pat = Pattern::PCons(
+            Box::new(Pattern::PVar("h".to_string())),
+            Box::new(Pattern::PVar("t".to_string())),
+        );
+
+        let result = try_match(&xs, &pat);
+
+        let bindings = result.expect("pattern should match");
+        assert_eq!(bindings.len(), 2);
+
+        // Make sure head is bound to Int(1)
+        let (h_name, h_val) = &bindings[0];
+        assert_eq!(h_name, "h");
+        assert!(matches!(h_val, Value::Int(1)));
+
+        // Make sure tail is bound to a list
+        let (t_name, t_val) = &bindings[1];
+        assert_eq!(t_name, "t");
+        assert!(matches!(t_val, Value::List(_)));
+    }
+
+    #[test]
+    fn nil_pattern_binds_empty_list() {
+        let xs = list_of(vec![]);
+
+        let pat = Pattern::PNil;
+
+        let result = try_match(&xs, &pat);
+
+        let bindings = result.expect("pattern should match");
+
+        assert_eq!(bindings.len(), 0);
+    }
+
+    #[test]
+    fn nil_pattern_no_bind_cons() {
+        let xs = list_of(vec![Value::Int(1), Value::Int(2)]);
+        let pat = Pattern::PNil;
+
+        let result = try_match(&xs, &pat);
+
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn literal_match_int_no_bind() {
+        let val = Value::Int(5);
+        let pat = Pattern::PNum(5);
+
+        let result = try_match(&val, &pat);
+
+        let bindings = result.expect("pattern should match");
+
+        assert_eq!(bindings.len(), 0);
+    }
+
+    #[test]
+    fn literal_match_bool_no_bind() {
+        let val = Value::Bool(true);
+        let pat = Pattern::PBool(true);
+
+        let result = try_match(&val, &pat);
+
+        let bindings = result.expect("pattern should match");
+
+        assert_eq!(bindings.len(), 0);
+    }
+
+    #[test]
+    fn literal_mismatch_no_bind_int() {
+        let val = Value::Int(4);
+        let pat = Pattern::PNum(5);
+
+        let result = try_match(&val, &pat);
+
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn literal_mismatch_no_bind_bool() {
+        let val = Value::Bool(true);
+        let pat = Pattern::PBool(false);
+
+        let result = try_match(&val, &pat);
+
+        assert!(result.is_none());
     }
 }
