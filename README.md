@@ -26,7 +26,7 @@ cargo run
 
 1. Write your program
 2. cargo build
-3. cargo run -- {Program filename}
+3. cargo run -- path/to/program
 
 ### Writing a Program
 
@@ -37,17 +37,16 @@ cargo run -- test_programs/peano_nums.fl
 
 There are a few cool programs in the test_programs dir
 
-#### Command Line Arguments
+### Command Line Arguments
 
-cargo run -> REPL, no AST
+To show AST:
+-s or --show-tree
 
-cargo run -- -s -> REPL, AST printed
+Runs program in file and prints AST
+cargo run -- test_programs/list_and_high_orders_out_of_functions.fl -s
 
-cargo run -- path/to/program -> run file, no AST
-
-cargo run -- -s path/to/program -> run file, AST printed
-
-cargo run -- path/to/program --show-tree -> also works
+REPL with AST printed
+cargo run -- -s
 
 ### File Descriptions
 
@@ -55,8 +54,8 @@ cargo run -- path/to/program --show-tree -> also works
 
 - funclang.lalrpop: Defines the grammar for the programming language and creates parser that builds AST from source
 
-- ast.rs: Defines the AST structure that the lalrpop parser generates, also contains pretty printing helpers if you want to display the AST
+- ast.rs: Defines the Abstract Syntax Tree structure that the lalrpop parser will use to build the AST which will be evaluated by the interpreter. This file contains pretty printing helpers if you want to display the AST (All pretty printing code was written by an LLM)
 
-- value.rs: Defines the values (and errors) to which a program can evaluate. This file also defines the linked list structure used for lexical scoping (and pretty printing help)
+- value.rs: Defines the values (and errors) to which a program can evaluate (and to which variables can be assigned). This file also defines envs, which is the linked list structure used to keep track of scope and variable assignments from "let ... in ..." expressions.
 
 - interpreter.rs: The Tree-Walking Interpreter (and helper functions). eval function takes in an AST and env (for scope) and recurses over entire AST to produce a value
