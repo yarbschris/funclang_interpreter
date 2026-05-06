@@ -16,6 +16,16 @@ let rec fold f lst acc =
     | h :: t -> fold f t (f h acc)
     end
 in
+let rec kindaZip lst1 lst2 =
+    match lst1 with
+    | [] -> lst2
+    | hd1 :: tl1 ->
+        match lst2 with
+        | [] -> lst1
+        | hd2 :: tl2 -> hd1 :: hd2 :: kindaZip tl1 tl2
+        end
+    end
+in
 let rec sumList lst = fold (fun x y -> x + y) lst 0
 in
 let isEven x = if x % 2 == 0 then true else false
@@ -24,4 +34,8 @@ let triple x = x * 3
 in
 let test_list = [1; 2; 3; 4; 5]
 in
-sumList(filter isEven (map triple test_list))
+// [6; 2; 12; 4]
+let zippedEvens = kindaZip (filter isEven (map triple test_list)) (filter isEven test_list)
+in
+// 24
+sumList zippedEvens
