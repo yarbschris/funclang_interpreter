@@ -121,10 +121,55 @@ fn print_tree(expr: &Expr, f: &mut fmt::Formatter<'_>, prefix: &str, last: bool)
             print_tree(l, f, &child_prefix, false)?;
             print_tree(r, f, &child_prefix, true)
         }
-        Expr::Match {
-            scrutinee: s,
-            arms: a,
-        } => todo!(),
+        Expr::Match { scrutinee, arms } => {
+            writeln!(f, "{prefix}{connector}Match")?;
+            let scrutinee_last = arms.is_empty();
+            print_tree(scrutinee, f, &child_prefix, scrutinee_last)?;
+            if let Some((last_arm, rest)) = arms.split_last() {
+                for (pat, body) in rest {
+                    print_arm(pat, body, f, &child_prefix, false)?;
+                }
+                let (pat, body) = last_arm;
+                print_arm(pat, body, f, &child_prefix, true)?;
+            }
+            Ok(())
+        }
+    }
+}
+
+fn print_arm(
+    pat: &Pattern,
+    body: &Expr,
+    f: &mut fmt::Formatter<'_>,
+    prefix: &str,
+    last: bool,
+) -> fmt::Result {
+    let connector = if last { "└── " } else { "├── " };
+    let child_prefix = format!("{}{}", prefix, if last { "    " } else { "│   " });
+    writeln!(f, "{prefix}{connector}Arm")?;
+    print_pattern(pat, f, &child_prefix, false)?;
+    print_tree(body, f, &child_prefix, true)
+}
+
+fn print_pattern(
+    pat: &Pattern,
+    f: &mut fmt::Formatter<'_>,
+    prefix: &str,
+    last: bool,
+) -> fmt::Result {
+    let connector = if last { "└── " } else { "├── " };
+    let child_prefix = format!("{}{}", prefix, if last { "    " } else { "│   " });
+    match pat {
+        Pattern::PVar(name) => writeln!(f, "{prefix}{connector}PVar({name})"),
+        Pattern::PWildcard => writeln!(f, "{prefix}{connector}PWildcard"),
+        Pattern::PNum(n) => writeln!(f, "{prefix}{connector}PNum({n})"),
+        Pattern::PBool(b) => writeln!(f, "{prefix}{connector}PBool({b})"),
+        Pattern::PNil => writeln!(f, "{prefix}{connector}PNil"),
+        Pattern::PCons(l, r) => {
+            writeln!(f, "{prefix}{connector}PCons")?;
+            print_pattern(l, f, &child_prefix, false)?;
+            print_pattern(r, f, &child_prefix, true)
+        }
     }
 }
 
