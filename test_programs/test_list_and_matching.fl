@@ -1,0 +1,27 @@
+let rec map f lst =
+    match lst with
+    | [] -> lst
+    | h :: t -> f h :: map f t
+    end
+in
+let rec filter f lst =
+    match lst with
+    | [] -> lst
+    | h :: t -> if (f h) then h :: filter f t else filter f t
+    end
+in
+let rec fold f lst acc =
+    match lst with
+    | [] -> acc
+    | h :: t -> fold f t (f h acc)
+    end
+in
+let rec sumList lst = fold (fun x y -> x + y) lst 0
+in
+let isEven x = if x % 2 == 0 then true else false
+in
+let triple x = x * 3
+in
+let test_list = [1; 2; 3; 4; 5]
+in
+sumList(filter isEven (map triple test_list))

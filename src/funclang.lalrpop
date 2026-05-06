@@ -1,5 +1,5 @@
 use std::str::FromStr;
-use crate::ast::{Expr, BinaryOpcode, UnaryOpcode};
+use crate::ast::{Expr, BinaryOpcode, UnaryOpcode, Pattern};
 
 grammar;
 
@@ -57,7 +57,37 @@ pub Expr: Box<Expr> = {
     },
     "fun" <ps:Ident+> "->" <body:Expr> =>
     ps.into_iter().rfold(body, |acc, p| Box::new(Expr::Lambda { param: p, body: acc })),
+
+    // Pattern Matching
+    "match" <s:Expr> "with" <arms:MatchArm+> "end" => Box::new(Expr::Match {
+            scrutinee: s,
+            arms,
+    }),
 }
+
+MatchArm: (Pattern, Box<Expr>) = {
+        "|" <p:Pattern> "->" <e:Expr> => (p, e),
+};
+
+pub Pattern: Pattern = {
+    #[precedence(level="0")]
+    PatternAtom,
+    #[precedence(level="1")] #[assoc(side="right")]
+    <h:Pattern> "::" <t:Pattern> => Pattern::PCons(Box::new(h), Box::new(t)),
+};
+
+PatternAtom: Pattern = {
+    "_" => Pattern::PWildcard,
+    Num => Pattern::PNum(<>),
+    "true" => Pattern::PBool(true),
+    "false" => Pattern::PBool(false),
+    Ident => Pattern::PVar(<>),
+    "[" <ps:Semi<Pattern>> "]" => ps.into_iter().rfold(
+        Pattern::PNil,
+        |acc, p| Pattern::PCons(Box::new(p), Box::new(acc)),
+    ),
+    "(" <Pattern> ")",
+};
 
 pub OpExpr: Box<Expr> = {
     #[precedence(level="0")]
