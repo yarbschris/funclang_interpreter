@@ -40,12 +40,15 @@ There are a few cool programs in the test_programs dir
 ### Command Line Arguments
 
 To show AST:
+
 -s or --show-tree
 
-Runs program in file and prints AST
+Runs program in file and prints AST:
+
 cargo run -- test_programs/list_and_high_orders_out_of_functions.fl -s
 
-REPL with AST printed
+REPL with AST printed:
+
 cargo run -- -s
 
 ### File Descriptions
