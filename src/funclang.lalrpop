@@ -3,6 +3,7 @@ use crate::ast::{Expr, BinaryOpcode, UnaryOpcode, Pattern};
 
 grammar;
 
+// Comments start with '//'
 match {
     r"\s+" => { },
     r"//[^\n\r]*" => { },
@@ -76,6 +77,8 @@ pub Pattern: Pattern = {
     <h:Pattern> "::" <t:Pattern> => Pattern::PCons(Box::new(h), Box::new(t)),
 };
 
+// These do not conflict with other grammar patterns (especially atoms) because
+// they will only be looked for in the left side of a Match arm
 PatternAtom: Pattern = {
     "_" => Pattern::PWildcard,
     Num => Pattern::PNum(<>),
@@ -128,6 +131,7 @@ Atom: Box<Expr> = {
     "(" <Expr> ")"
 }
 
+// Macro for a series of values separated by semicolons
 Semi<T>: Vec<T> = {
     <mut v:(<T> ";")*> <e:T?> => match e {
         None => v,
